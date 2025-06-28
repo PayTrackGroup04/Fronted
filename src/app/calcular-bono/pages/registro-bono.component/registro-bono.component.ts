@@ -1,107 +1,152 @@
-import {Component, Injectable, OnInit} from '@angular/core';
-import {Bono} from '../../model/bono.entity';
-import {FlujoBono} from '../../model/flujo-bono.entity';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+export interface Bono {
+  valorNominal: number;
+  tasaCupon: number;
+  tipoTasa: 'Efectiva' | 'Nominal';
+  capitalizacion?: number;
+  frecuenciaPago: number;
+  plazoAnios: number;
+  graciaTotal: number;
+  graciaParcial: number;
+  fechaEmision: string;
+  cavali: number;
+  estructuracion: number;
+  colocacion: number;
+  metodoAmortizacion: 'Frances';
+  moneda: 'Soles' | 'Dolares';
+}
+
+export interface Cuota {
+  t: number;
+  fechaPago: string;
+  tipoGracia: string;
+  saldoInicial: number;
+  interes: number;
+  cuota: number;
+  amortizacion: number;
+  saldoFinal: number;
+  flujoNeto: number;
+  flujoActualizado: number;
+}
 
 @Component({
-  selector: 'registro-bono',
-  standalone: false,
+  selector: 'app-registro-bono',
   templateUrl: './registro-bono.component.html',
-  styleUrl: './registro-bono.component.css'
-})
-@Injectable({ providedIn: 'root' })
-export class RegistroBonoComponent{
+  styleUrls: ['./registro-bono.component.css'],
+standalone: true,
+imports: [CommonModule, FormsModule]
 
+})
+export class RegistroBonoComponent {
   bono: Bono = {
-    valorNominal: 0,
-    tasaCupon: 0,
-    tipoDeTasa: 'Nominal',
-    capitalizacion: 'Mensual',
-    frecuenciaPago: 0,
-    plazo: 0,
+    valorNominal: 1000,
+    tasaCupon: 0.08,
+    tipoTasa: 'Efectiva',
+    capitalizacion: 1,
+    frecuenciaPago: 2,
+    plazoAnios: 3,
     graciaTotal: 0,
-    graciaParcial: 0,
-    fechaInicio: new Date()
+    graciaParcial: 1,
+    fechaEmision: '2025-06-15',
+    cavali: 0.005,
+    estructuracion: 0.01,
+    colocacion: 0.002,
+    metodoAmortizacion: 'Frances',
+    moneda: 'Soles'
   };
 
-  flujoBono: FlujoBono[] = [];
+  cuadro: Cuota[] = [];
+  tcea = 0;
+  trea = 0;
+  duracion = 0;
+  duracionModificada = 0;
+  convexidad = 0;
+  precioBono = 0;
 
-  onSubmit() {
-    const periodos = this.bono.plazo * this.bono.frecuenciaPago;
-    const tasa = this.obtenerTasaEfectiva(this.bono);
-    const cuota = this.calcularCuota(this.bono.valorNominal, tasa, periodos);
+  calcularFlujo(): void {
+    const { valorNominal, tasaCupon, tipoTasa, capitalizacion, frecuenciaPago, plazoAnios, graciaTotal, graciaParcial } = this.bono;
+    const n = plazoAnios * frecuenciaPago;
+    const tasaEfectiva = tipoTasa === 'Nominal'
+      ? Math.pow(1 + tasaCupon / (capitalizacion!), capitalizacion! / frecuenciaPago) - 1
+      : Math.pow(1 + tasaCupon, 1 / frecuenciaPago) - 1;
 
-    const flujo: FlujoBono[] = [];
-    let saldo = this.bono.valorNominal;
-    let fecha = new Date(this.bono.fechaInicio);
+    const cuota = valorNominal * (tasaEfectiva / (1 - Math.pow(1 + tasaEfectiva, -n)));
+    const cuadro: Cuota[] = [];
+    let saldo = valorNominal;
+    let fecha = new Date(this.bono.fechaEmision);
+    let valorActualTotal = 0;
+    let dur = 0;
+    let conv = 0;
 
-    for (let i = 1; i <= periodos; i++) {
-      const estaEnGraciaTotal = i <= this.bono.graciaTotal;
-      const estaEnGraciaParcial = i <= this.bono.graciaTotal + this.bono.graciaParcial && !estaEnGraciaTotal;
-
-      let interes = saldo * tasa;
+    for (let t = 1; t <= n; t++) {
+      fecha.setMonth(fecha.getMonth() + (12 / frecuenciaPago));
+      const tipoGracia = t <= graciaTotal ? 'Total' : t <= graciaTotal + graciaParcial ? 'Parcial' : 'Ninguno';
+      let interes = saldo * tasaEfectiva;
+      let cuotaFinal = 0;
       let amortizacion = 0;
-      let cuotaReal = 0;
 
-      if (estaEnGraciaTotal) {
+      if (tipoGracia === 'Total') {
         interes = 0;
-        amortizacion = 0;
-        cuotaReal = 0;
-      } else if (estaEnGraciaParcial) {
-        amortizacion = 0;
-        cuotaReal = interes;
+      } else if (tipoGracia === 'Parcial') {
+        cuotaFinal = interes;
       } else {
+        cuotaFinal = cuota;
         amortizacion = cuota - interes;
-        cuotaReal = cuota;
       }
 
       const saldoFinal = saldo - amortizacion;
-      const flujoEmisor = cuotaReal;
-      const flujoInversionista = -cuotaReal;
+      const flujoNeto = cuotaFinal;
+      const flujoActualizado = flujoNeto / Math.pow(1 + tasaEfectiva, t);
 
-      flujo.push({
-        periodo: i,
-        fecha: new Date(fecha),
+      valorActualTotal += flujoActualizado;
+      dur += t * flujoActualizado;
+      conv += t * (t + 1) * flujoActualizado;
+
+      cuadro.push({
+        t,
+        fechaPago: fecha.toISOString().split('T')[0],
+        tipoGracia,
         saldoInicial: saldo,
-        cuota: cuotaReal,
         interes,
+        cuota: cuotaFinal,
         amortizacion,
         saldoFinal,
-        flujoEmisor,
-        flujoInversionista
+        flujoNeto,
+        flujoActualizado
       });
 
       saldo = saldoFinal;
-      fecha.setMonth(fecha.getMonth() + (12 / this.bono.frecuenciaPago));
     }
 
-    this.flujoBono = flujo;
+    this.cuadro = cuadro;
+    this.tcea = Math.pow(valorNominal / valorActualTotal, frecuenciaPago) - 1;
+    this.duracion = dur / valorActualTotal;
+    this.duracionModificada = this.duracion / (1 + tasaEfectiva);
+    this.convexidad = conv / (Math.pow(1 + tasaEfectiva, 2) * valorActualTotal);
+    this.precioBono = valorActualTotal;
+
+    this.calcularTREA();
   }
 
-  private obtenerTasaEfectiva(bono: Bono): number {
-    const tasa = bono.tasaCupon / 100;
-    const capitalizacion = this.periodosPorAno(bono.capitalizacion);
-    const frecuencia = bono.frecuenciaPago;
+  calcularTREA(): void {
+    let tasa = 0.01;
+    const precision = 0.0000001;
+    const maxIter = 100;
+    let diferencia;
+    let iter = 0;
 
-    if (bono.tipoDeTasa === 'Nominal') {
-      return Math.pow(1 + (tasa / capitalizacion), capitalizacion / frecuencia) - 1;
-    } else {
-      return Math.pow(1 + tasa, 1 / frecuencia) - 1;
-    }
-  }
+    do {
+      const vp = this.cuadro.reduce((acc, cuota) => acc + cuota.flujoNeto / Math.pow(1 + tasa, cuota.t), 0);
+      diferencia = this.precioBono - vp;
+      const derivada = this.cuadro.reduce((acc, cuota) => acc - cuota.t * cuota.flujoNeto / Math.pow(1 + tasa, cuota.t + 1), 0);
+      const nuevaTasa = tasa - diferencia / derivada;
+      if (Math.abs(nuevaTasa - tasa) < precision) break;
+      tasa = nuevaTasa;
+    } while (++iter < maxIter);
 
-  private calcularCuota(pv: number, tasa: number, n: number): number {
-    return (pv * tasa) / (1 - Math.pow(1 + tasa, -n));
-  }
-
-  private periodosPorAno(cap: string): number {
-    switch (cap) {
-      case 'Mensual': return 12;
-      case 'Bimestral': return 6;
-      case 'Trimestral': return 4;
-      case 'Semestral': return 2;
-      case 'Anual': return 1;
-      default: return 1;
-    }
+    this.trea = Math.pow(1 + tasa, this.bono.frecuenciaPago) - 1;
   }
 }
-

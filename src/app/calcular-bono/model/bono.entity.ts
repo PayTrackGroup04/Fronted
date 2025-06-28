@@ -1,11 +1,29 @@
 export interface Bono {
   valorNominal: number;
   tasaCupon: number;
-  tipoDeTasa: 'Nominal' | 'Efectiva';
-  capitalizacion: 'Mensual' | 'Bimestral' | 'Trimestral' | 'Semestral' | 'Anual';
+  tipoTasa: 'Efectiva' | 'Nominal';
+  capitalizacion?: number;
   frecuenciaPago: number;
-  plazo: number;
+  plazoAnios: number;
   graciaTotal: number;
   graciaParcial: number;
-  fechaInicio: Date;
+  fechaEmision: string;
+  cavali: number;
+  estructuracion: number;
+  colocacion: number;
+  metodoAmortizacion: 'Frances';
+  moneda: 'Soles' | 'Dolares';
+}
+
+export interface Cuota {
+  t: number;
+  fechaPago: string;
+  tipoGracia: string;
+  saldoInicial: number;
+  interes: number;
+  cuota: number;
+  amortizacion: number;
+  saldoFinal: number;
+  flujoNeto: number;
+  flujoActualizado: number;
 }

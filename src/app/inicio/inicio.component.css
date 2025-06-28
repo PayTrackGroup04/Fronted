@@ -1,0 +1,42 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+ 
+}
+
+/* Sección principal */
+.main-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px;
+}
+
+.left-content {
+  max-width: 40%;
+  padding: 0 20px;
+}
+
+.left-content h1 {
+  font-size: 60px;
+  color: #000;
+}
+
+.left-content p {
+  font-size: 20px;
+  color: #333;
+  margin-top: 20px;
+}
+
+.right-content img {
+  width: 500px;
+  max-width: 300%;
+}
+
+.left-content h2 {
+  font-size: 20px;
+  color: #333;
+  margin-top: 100px;
+  margin-right: 200px;
+}
+
