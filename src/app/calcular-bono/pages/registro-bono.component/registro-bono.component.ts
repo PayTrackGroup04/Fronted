@@ -1,60 +1,107 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import {Bono} from '../../model/bono.entity';
+import {FlujoBono} from '../../model/flujo-bono.entity';
 
 @Component({
-  selector: 'registro-bono.component',
+  selector: 'registro-bono',
   standalone: false,
   templateUrl: './registro-bono.component.html',
   styleUrl: './registro-bono.component.css'
 })
-export class RegistroBonoComponent implements OnInit{
+@Injectable({ providedIn: 'root' })
+export class RegistroBonoComponent{
+
   bono: Bono = {
-    precioDeVenta: 0,
-    cuotaInicial: 0,
-    prestamo: 0,
-    frecuenciaPago: '',
+    valorNominal: 0,
+    tasaCupon: 0,
+    tipoDeTasa: 'Nominal',
+    capitalizacion: 'Mensual',
+    frecuenciaPago: 0,
     plazo: 0,
-    tea: 0,
-    numeroPeriodos: 0,
-    plazoDeGracia: 0,
-    fechaPrimerPago: ''
+    graciaTotal: 0,
+    graciaParcial: 0,
+    fechaInicio: new Date()
   };
 
-  ngOnInit() {
-    this.onSubmit();
-  }
+  flujoBono: FlujoBono[] = [];
 
   onSubmit() {
-    this.calcularBono(this.bono);
-  }
+    const periodos = this.bono.plazo * this.bono.frecuenciaPago;
+    const tasa = this.obtenerTasaEfectiva(this.bono);
+    const cuota = this.calcularCuota(this.bono.valorNominal, tasa, periodos);
 
-  calcularCuotaFrancesa(prestamo: number, tasa: number, periodos: number): number {
-    const i = tasa / 100;
-    return prestamo * (i * Math.pow(1 + i, periodos)) / (Math.pow(1 + i, periodos) - 1);
-  }
+    const flujo: FlujoBono[] = [];
+    let saldo = this.bono.valorNominal;
+    let fecha = new Date(this.bono.fechaInicio);
 
-  calcularintereses(interes: number, saldo: number): number {
-    return (interes * saldo) / 100;
-  }
+    for (let i = 1; i <= periodos; i++) {
+      const estaEnGraciaTotal = i <= this.bono.graciaTotal;
+      const estaEnGraciaParcial = i <= this.bono.graciaTotal + this.bono.graciaParcial && !estaEnGraciaTotal;
 
-  calcularAmortizacion(cuota: number, interes: number): number {
-    return cuota - interes;
-  }
-  calcularBono(bono: Bono): void {
-    const cuota = this.calcularCuotaFrancesa(bono.prestamo, bono.tea, bono.numeroPeriodos);
-    let saldo = bono.prestamo;
-    let totalIntereses = 0;
-    let totalAmortizacion = 0;
+      let interes = saldo * tasa;
+      let amortizacion = 0;
+      let cuotaReal = 0;
 
-    for (let i = 0; i < bono.numeroPeriodos; i++) {
-      const interes = this.calcularintereses(bono.tea, saldo);
-      const amortizacion = this.calcularAmortizacion(cuota, interes);
-      saldo -= amortizacion;
-      totalIntereses += interes;
-      totalAmortizacion += amortizacion;
+      if (estaEnGraciaTotal) {
+        interes = 0;
+        amortizacion = 0;
+        cuotaReal = 0;
+      } else if (estaEnGraciaParcial) {
+        amortizacion = 0;
+        cuotaReal = interes;
+      } else {
+        amortizacion = cuota - interes;
+        cuotaReal = cuota;
+      }
+
+      const saldoFinal = saldo - amortizacion;
+      const flujoEmisor = cuotaReal;
+      const flujoInversionista = -cuotaReal;
+
+      flujo.push({
+        periodo: i,
+        fecha: new Date(fecha),
+        saldoInicial: saldo,
+        cuota: cuotaReal,
+        interes,
+        amortizacion,
+        saldoFinal,
+        flujoEmisor,
+        flujoInversionista
+      });
+
+      saldo = saldoFinal;
+      fecha.setMonth(fecha.getMonth() + (12 / this.bono.frecuenciaPago));
     }
 
-    console.log(`Cuota: ${cuota}, Total Intereses: ${totalIntereses}, Total Amortización: ${totalAmortizacion}`);
+    this.flujoBono = flujo;
+  }
+
+  private obtenerTasaEfectiva(bono: Bono): number {
+    const tasa = bono.tasaCupon / 100;
+    const capitalizacion = this.periodosPorAno(bono.capitalizacion);
+    const frecuencia = bono.frecuenciaPago;
+
+    if (bono.tipoDeTasa === 'Nominal') {
+      return Math.pow(1 + (tasa / capitalizacion), capitalizacion / frecuencia) - 1;
+    } else {
+      return Math.pow(1 + tasa, 1 / frecuencia) - 1;
+    }
+  }
+
+  private calcularCuota(pv: number, tasa: number, n: number): number {
+    return (pv * tasa) / (1 - Math.pow(1 + tasa, -n));
+  }
+
+  private periodosPorAno(cap: string): number {
+    switch (cap) {
+      case 'Mensual': return 12;
+      case 'Bimestral': return 6;
+      case 'Trimestral': return 4;
+      case 'Semestral': return 2;
+      case 'Anual': return 1;
+      default: return 1;
+    }
   }
 }
 

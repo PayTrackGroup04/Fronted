@@ -1,11 +1,11 @@
 export interface Bono {
-  precioDeVenta: number;
-  cuotaInicial: number;
-  prestamo: number;
-  frecuenciaPago: string;
+  valorNominal: number;
+  tasaCupon: number;
+  tipoDeTasa: 'Nominal' | 'Efectiva';
+  capitalizacion: 'Mensual' | 'Bimestral' | 'Trimestral' | 'Semestral' | 'Anual';
+  frecuenciaPago: number;
   plazo: number;
-  tea: number;
-  numeroPeriodos: number;
-  plazoDeGracia: number;
-  fechaPrimerPago: string;
+  graciaTotal: number;
+  graciaParcial: number;
+  fechaInicio: Date;
 }
