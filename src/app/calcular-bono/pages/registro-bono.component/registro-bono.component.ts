@@ -41,9 +41,7 @@ export class RegistroBonoComponent {
 
 
   calcularFlujo(): void {
-    //ver que pasa con cuota, n y tasaEfectiva estan ok
     const n = this.bono.plazoAnios * this.periodosPorAno(this.bono.frecuenciaPago);
-    console.log("n:", n);
     const tasaEfectiva = this.obtenerTasaEfectiva(this.bono);
     const cuota = this.calcularCuota(this.bono.valorNominal, tasaEfectiva, n);
 
@@ -55,6 +53,7 @@ export class RegistroBonoComponent {
     let dur = 0;
     let conv = 0;
 
+
     for (let t = 1; t <= n; t++) {
       fecha.setMonth(fecha.getMonth() + (12 / this.bono.frecuenciaPago));
       const tipoGracia = t <= this.bono.graciaTotal ? 'Total' : t <= this.bono.graciaTotal + this.bono.graciaParcial ? 'Parcial' : 'Ninguno';
@@ -65,6 +64,7 @@ export class RegistroBonoComponent {
 
       if (tipoGracia === 'Total') {
         interes = 0;
+        amortizacion = 0;
       } else if (tipoGracia === 'Parcial') {
         cuotaFinal = interes;
         amortizacion = 0;
@@ -74,7 +74,12 @@ export class RegistroBonoComponent {
       }
 
       const saldoFinal = saldo - amortizacion;
-      const flujoNeto = cuotaFinal;
+      let flujoNeto = 0;
+      if (t == 1){
+        flujoNeto = -this.bono.valorNominal;
+      } else {
+        flujoNeto = cuotaFinal;
+      }
       const flujoActualizado = flujoNeto / Math.pow(1 + tasaEfectiva, t);
 
       valorActualTotal += flujoActualizado;
@@ -109,8 +114,7 @@ export class RegistroBonoComponent {
 
   private calcularCuota(pv: number, tasaEfectiva: number, n: number): number {
     let cuota;
-    cuota =  pv * ((Math.pow(1 + tasaEfectiva, n) -1) / tasaEfectiva);
-    console.log("Cuota:", cuota);
+    cuota = pv * ((tasaEfectiva * Math.pow(1 + tasaEfectiva, n))/ (Math.pow(1 + tasaEfectiva, n) - 1));
     return cuota;
   }
 
