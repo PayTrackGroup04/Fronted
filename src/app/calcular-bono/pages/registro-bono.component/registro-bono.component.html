@@ -39,6 +39,10 @@
     <input type="date" name="fechaEmision" [(ngModel)]="bono.fechaEmision">
   </label><br>
 
+  <label>Número de días por año:
+    <input type="number" name="numeroDiasPorAno" [(ngModel)]="bono.numeroDiasPorAno">
+  </label><br>
+
   <label>Cavali:
     <input type="number" name="cavali" step="0.001" [(ngModel)]="bono.cavali">
   </label><br>
@@ -62,7 +66,7 @@
 </form>
 
 <!-- Resultados -->
-<div *ngIf="cuadro.length > 0">
+<div *ngIf="flujoBono.length > 0">
   <h3>Cuadro de Amortización</h3>
   <table border="1">
     <thead>
@@ -71,7 +75,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let c of cuadro">
+      <tr *ngFor="let c of flujoBono">
         <td>{{c.t}}</td>
         <td>{{c.fechaPago}}</td>
         <td>{{c.tipoGracia}}</td>
