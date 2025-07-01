@@ -1,10 +1,14 @@
 <h2>Registro de Bono</h2>
 <form (ngSubmit)="calcularFlujo()" #bonoForm="ngForm">
+
   <label>Valor Nominal:
-    <input type="number" name="valorNominal" [(ngModel)]="bono.valorNominal" required>
+    <input type="number" name="valorNominal" [(ngModel)]="bono.valorNominal" required (blur)="validarValorNominal()">
+      <div *ngIf="mensajeAdvertenciaValorNominal">
+        <span style="color: red;">El valor nominal debe ser mayor a 1000</span>
+      </div>
   </label><br>
 
-  <label>Tasa Cupón (TEA):
+  <label>Tasa Cupón:
     <input type="number" step="0.01" name="tasaCupon" [(ngModel)]="bono.tasaCupon" required>
   </label><br>
 
@@ -16,11 +20,11 @@
   </label><br>
 
   <label>Capitalización (si es nominal):
-    <input type="number" name="capitalizacion" [(ngModel)]="bono.capitalizacion">
+    <input type="text" name="capitalizacion" [(ngModel)]="bono.capitalizacion" [disabled]="capitalizacionDeshabilitada()">
   </label><br>
 
   <label>Frecuencia de Pago:
-    <input type="number" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
+    <input type="text" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
   </label><br>
 
   <label>Plazo (en años):

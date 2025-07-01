@@ -3,7 +3,7 @@ export interface Bono {
   tasaCupon: number;
   tipoTasa: 'Efectiva' | 'Nominal';
   capitalizacion?: 'Quincenal' | 'Mensual' | 'Bimestral' | 'Trimestral' | 'Cuatrimestral' | 'Semestral' | 'Anual';
-  frecuenciaPago: number;
+  frecuenciaPago: 'Quincenal' | 'Mensual' | 'Bimestral' | 'Trimestral' | 'Cuatrimestral' | 'Semestral' | 'Anual';
   plazoAnios: number;
   graciaTotal: number;
   graciaParcial: number;
@@ -14,4 +14,5 @@ export interface Bono {
   colocacion: number;
   metodoAmortizacion: 'Frances';
   moneda: 'Soles' | 'Dolares';
+
 }
