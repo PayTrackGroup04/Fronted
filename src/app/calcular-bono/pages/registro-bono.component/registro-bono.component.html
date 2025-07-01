@@ -1,104 +1,135 @@
-<h2>Registro de Bono</h2>
-<form (ngSubmit)="calcularFlujo()" #bonoForm="ngForm">
 
-  <label>Valor Nominal:
-    <input type="number" name="valorNominal" [(ngModel)]="bono.valorNominal" required (blur)="validarValorNominal()">
-      <div *ngIf="mensajeAdvertenciaValorNominal">
-        <span style="color: red;">El valor nominal debe ser mayor a 1000</span>
-      </div>
-  </label><br>
+<div class="contenedor-flex">
+  <div class="layout">
+    <div class="contenedor-formulario">
+    <h2 class="titulo-principal">REGISTRO DE BONOS</h2>
+      <form (ngSubmit)="calcularFlujo()" #bonoForm="ngForm">
+        <div class="columna">
+          <label>Valor Nominal:
+            <input type="number" name="valorNominal" [(ngModel)]="bono.valorNominal" required
+              (blur)="validarValorNominal()">
+            <div *ngIf="mensajeAdvertenciaValorNominal">
+              <span style="color: red;">El valor nominal debe ser mayor a 1000</span>
+            </div>
+          </label>
 
-  <label>Tasa Cupón:
-    <input type="number" step="0.01" name="tasaCupon" [(ngModel)]="bono.tasaCupon" required>
-  </label><br>
+          <label>Tasa Cupón:
+            <input type="number" step="0.01" name="tasaCupon" [(ngModel)]="bono.tasaCupon" required>
+          </label>
 
-  <label>Tipo de Tasa:
-    <select name="tipoTasa" [(ngModel)]="bono.tipoTasa">
-      <option value="Efectiva">Efectiva</option>
-      <option value="Nominal">Nominal</option>
-    </select>
-  </label><br>
+          <label>Tipo de Tasa:
+            <select name="tipoTasa" [(ngModel)]="bono.tipoTasa">
+              <option value="Efectiva">Efectiva</option>
+              <option value="Nominal">Nominal</option>
+            </select>
+          </label>
 
-  <label>Capitalización (si es nominal):
-    <input type="text" name="capitalizacion" [(ngModel)]="bono.capitalizacion" [disabled]="capitalizacionDeshabilitada()">
-  </label><br>
+          <label>Capitalización (si es nominal):
+            <input type="text" name="capitalizacion" [(ngModel)]="bono.capitalizacion"
+              [disabled]="capitalizacionDeshabilitada()">
+          </label>
 
-  <label>Frecuencia de Pago:
-    <input type="text" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
-  </label><br>
+          <label>Frecuencia de Pago:
+            <input type="text" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
+          </label>
 
-  <label>Plazo (en años):
-    <input type="number" name="plazoAnios" [(ngModel)]="bono.plazoAnios" required>
-  </label><br>
+          <label>Plazo (en años):
+            <input type="number" name="plazoAnios" [(ngModel)]="bono.plazoAnios" required>
+          </label>
 
-  <label>Gracia Total:
-    <input type="number" name="graciaTotal" [(ngModel)]="bono.graciaTotal">
-  </label><br>
+          <label>Gracia Total:
+            <input type="number" name="graciaTotal" [(ngModel)]="bono.graciaTotal">
+          </label>
+        </div>
 
-  <label>Gracia Parcial:
-    <input type="number" name="graciaParcial" [(ngModel)]="bono.graciaParcial">
-  </label><br>
+        <div class="columna">
+          <label>Gracia Parcial:
+            <input type="number" name="graciaParcial" [(ngModel)]="bono.graciaParcial">
+          </label>
 
-  <label>Fecha de Emisión:
-    <input type="date" name="fechaEmision" [(ngModel)]="bono.fechaEmision">
-  </label><br>
+          <label>Fecha de Emisión:
+            <input type="date" name="fechaEmision" [(ngModel)]="bono.fechaEmision">
+          </label>
 
-  <label>Número de días por año:
-    <input type="number" name="numeroDiasPorAno" [(ngModel)]="bono.numeroDiasPorAno">
-  </label><br>
+          <label>Número de días por año:
+            <input type="number" name="numeroDiasPorAno" [(ngModel)]="bono.numeroDiasPorAno">
+          </label>
 
-  <label>Cavali:
-    <input type="number" name="cavali" step="0.001" [(ngModel)]="bono.cavali">
-  </label><br>
+          <label>Cavali:
+            <input type="number" name="cavali" step="0.001" [(ngModel)]="bono.cavali">
+          </label>
 
-  <label>Estructuración:
-    <input type="number" name="estructuracion" step="0.001" [(ngModel)]="bono.estructuracion">
-  </label><br>
+          <label>Estructuración:
+            <input type="number" name="estructuracion" step="0.001" [(ngModel)]="bono.estructuracion">
+          </label>
 
-  <label>Colocación:
-    <input type="number" name="colocacion" step="0.001" [(ngModel)]="bono.colocacion">
-  </label><br>
+          <label>Colocación:
+            <input type="number" name="colocacion" step="0.001" [(ngModel)]="bono.colocacion">
+          </label>
 
-  <label>Moneda:
-    <select name="moneda" [(ngModel)]="bono.moneda">
-      <option value="Soles">Soles</option>
-      <option value="Dolares">Dólares</option>
-    </select>
-  </label><br><br>
+          <label>Moneda:
+            <select name="moneda" [(ngModel)]="bono.moneda">
+              <option value="Soles">Soles</option>
+              <option value="Dolares">Dólares</option>
+            </select>
+          </label>
+        </div>
 
-  <button type="submit">Calcular Flujo</button>
-</form>
+        <div class="boton-centro">
+          <button type="submit">CALCULAR FLUJO</button>
+        </div>
+      </form>
+    </div>
 
-<!-- Resultados -->
-<div *ngIf="flujoBono.length > 0">
-  <h3>Cuadro de Amortización</h3>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>Periodo</th><th>Fecha</th><th>Gracia</th><th>Saldo Inicial</th><th>Interés</th><th>Cuota</th><th>Amortización</th><th>Saldo Final</th><th>Flujo Neto</th><th>Flujo Actualizado</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let c of flujoBono">
-        <td>{{c.t}}</td>
-        <td>{{c.fechaPago}}</td>
-        <td>{{c.tipoGracia}}</td>
-        <td>{{c.saldoInicial | number:'1.2-2'}}</td>
-        <td>{{c.interes | number:'1.2-2'}}</td>
-        <td>{{c.cuota | number:'1.2-2'}}</td>
-        <td>{{c.amortizacion | number:'1.2-2'}}</td>
-        <td>{{c.saldoFinal | number:'1.2-2'}}</td>
-        <td>{{c.flujoNeto | number:'1.2-2'}}</td>
-        <td>{{c.flujoActualizado | number:'1.2-2'}}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3>Resultados</h3>
-  <p><strong>TCEA:</strong> {{ tcea | percent:'1.2-2' }}</p>
-  <p><strong>TREA:</strong> {{ trea | percent:'1.2-2' }}</p>
-  <p><strong>Duración:</strong> {{ duracion | number:'1.2-2' }}</p>
-  <p><strong>Duración Modificada:</strong> {{ duracionModificada | number:'1.2-2' }}</p>
-  <p><strong>Convexidad:</strong> {{ convexidad | number:'1.2-2' }}</p>
-  <p><strong>Precio del Bono:</strong> {{ precioBono | number:'1.2-2' }}</p>
+    <!-- RESULTADOS -->
+    <div class="resultados" *ngIf="flujoBono.length > 0">
+      <h3>RESULTADOS</h3>
+      <p><strong>TCEA:</strong> {{ tcea | percent:'1.2-2' }}</p>
+      <p><strong>TREA:</strong> {{ trea | percent:'1.2-2' }}</p>
+      <p><strong>Duración:</strong> {{ duracion | number:'1.2-2' }}</p>
+      <p><strong>Duración Modificada:</strong> {{ duracionModificada | number:'1.2-2' }}</p>
+      <p><strong>Convexidad:</strong> {{ convexidad | number:'1.2-2' }}</p>
+      <p><strong>Precio del Bono:</strong> {{ precioBono | number:'1.2-2' }}</p>
+    </div>
+  </div>
 </div>
+
+<div *ngIf="flujoBono.length > 0">
+  <h3 class="titulo-amortizacion">CUADRO DE AMORTIZACIÓN</h3>
+  <div class="tabla-scroll">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Periodo</th>
+          <th>Fecha</th>
+          <th>Gracia</th>
+          <th>Saldo Inicial</th>
+          <th>Interés</th>
+          <th>Cuota</th>
+          <th>Amortización</th>
+          <th>Saldo Final</th>
+          <th>Flujo Neto</th>
+          <th>Flujo Actualizado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of flujoBono">
+          <td>{{c.t}}</td>
+          <td>{{c.fechaPago}}</td>
+          <td>{{c.tipoGracia}}</td>
+          <td>{{c.saldoInicial | number:'1.2-2'}}</td>
+          <td>{{c.interes | number:'1.2-2'}}</td>
+          <td>{{c.cuota | number:'1.2-2'}}</td>
+          <td>{{c.amortizacion | number:'1.2-2'}}</td>
+          <td>{{c.saldoFinal | number:'1.2-2'}}</td>
+          <td>{{c.flujoNeto | number:'1.2-2'}}</td>
+          <td>{{c.flujoActualizado | number:'1.2-2'}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+  
+
