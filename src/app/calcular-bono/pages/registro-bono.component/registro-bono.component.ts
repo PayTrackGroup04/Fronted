@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import {Bono} from '../../model/bono.entity';
 import {FlujoBono} from '../../model/flujo-bono.entity';
 import {ConfigurationComponent} from '../../components/configuration.component/configuration.component';
+import {ConfigurationPopupComponent} from '../../components/configuration-popup.component/configuration-popup.component';
 
 @Component({
   selector: 'app-registro-bono',
   templateUrl: './registro-bono.component.html',
   styleUrls: ['./registro-bono.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfigurationComponent]
+  imports: [CommonModule, FormsModule, ConfigurationComponent, ConfigurationPopupComponent]
 
 })
 export class RegistroBonoComponent {
@@ -38,6 +39,23 @@ export class RegistroBonoComponent {
   duracion = 0;
   duracionModificada = 0;
   convexidad = 0;
+
+  mostrarPopup = false;
+
+  abrirConfiguracion() {
+    this.mostrarPopup = true;
+  }
+
+  cerrarPopup() {
+    this.mostrarPopup = false;
+  }
+
+  guardarConfiguracion(config: { moneda: string; tipoTasa: string; capitalizacion: string }) {
+    this.bono.moneda = config.moneda as any;
+    this.bono.tipoTasa = config.tipoTasa as any;
+    this.bono.capitalizacion = config.capitalizacion as any;
+    this.cerrarPopup();
+  }
 
   calcularFlujo(): void {
     const n = this.bono.plazoAnios * this.periodosPorAno(this.bono.frecuenciaPago);
@@ -225,10 +243,6 @@ export class RegistroBonoComponent {
 
   //validaciones
 
-  capitalizacionDeshabilitada(): boolean {
-    return this.bono.tipoTasa === 'Efectiva';
-  }
-
   valorNominalValido = true;
   valorTasaCuponValido = true;
   valorPlazoAniosValido = true;
@@ -246,9 +260,9 @@ export class RegistroBonoComponent {
     const valor = this.bono.valorNominal;
 
     const fueraDeRango = valor < 1000 || valor > 10000000;
-    const advertenciaMultiplo = valor % 1000 !== 0;
+    //const advertenciaMultiplo = valor % 1000 !== 0;
 
-    this.mensajeAdvertenciaValorNominal = fueraDeRango || advertenciaMultiplo;
+    this.mensajeAdvertenciaValorNominal = fueraDeRango; // || advertenciaMultiplo;
     this.valorNominalValido = !this.mensajeAdvertenciaValorNominal;
   }
 

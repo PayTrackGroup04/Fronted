@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import {Router} from '@angular/router';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 
 @Component({
@@ -11,9 +10,10 @@ import {MatIcon} from '@angular/material/icon';
   styleUrl: './configuration.component.css'
 })
 export class ConfigurationComponent {
-  constructor(private router: Router) {}
 
-  goToConfig() {
-    this.router.navigate(['/configuracion']);
+  @Output() openPopup = new EventEmitter<void>();
+
+  abrirPopup() {
+    this.openPopup.emit();
   }
 }

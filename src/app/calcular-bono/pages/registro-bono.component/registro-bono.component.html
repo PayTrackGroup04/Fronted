@@ -12,7 +12,7 @@
                    required>
             <div *ngIf="mensajeAdvertenciaValorNominal" class="error">
               <br>
-              <span style="color: red;"> El valor nominal debe estar entre 1,000 y 10,000,000 y ser múltiplo de 1,000. <br></span>
+              <span style="color: red;"> El valor nominal debe estar entre 1,000 y 10,000,000. <br></span>
               <br>
             </div>
           </label>
@@ -29,18 +29,6 @@
               <span style="color: red;"> La tasa cupón debe estar entre 1% y 20%. <br></span>
               <br>
             </div>
-          </label>
-
-          <label>Tipo de Tasa:
-            <select name="tipoTasa" [(ngModel)]="bono.tipoTasa">
-              <option value="Efectiva">Efectiva</option>
-              <option value="Nominal">Nominal</option>
-            </select>
-          </label>
-
-          <label>Capitalización (si es nominal):
-            <input type="text" name="capitalizacion" [(ngModel)]="bono.capitalizacion"
-              [disabled]="capitalizacionDeshabilitada()">
           </label>
 
           <label>Frecuencia de Pago:
@@ -76,9 +64,6 @@
               <br>
             </div>
           </label>
-        </div>
-
-        <div class="columna">
           <label>Gracia Parcial:
             <input type="number"
                    name="graciaParcial"
@@ -95,7 +80,9 @@
               <br>
             </div>
           </label>
+        </div>
 
+        <div class="columna">
           <label>Fecha de Emisión:
             <input type="date" name="fechaEmision" [(ngModel)]="bono.fechaEmision">
           </label>
@@ -114,13 +101,6 @@
 
           <label>Colocación:
             <input type="number" name="colocacion" step="0.001" [(ngModel)]="bono.colocacion">
-          </label>
-
-          <label>Moneda:
-            <select name="moneda" [(ngModel)]="bono.moneda">
-              <option value="Soles">Soles</option>
-              <option value="Dolares">Dólares</option>
-            </select>
           </label>
         </div>
 
@@ -150,7 +130,16 @@
   </div>
 </div>
 
-  <app-configuration></app-configuration>
+<app-configuration (openPopup)="abrirConfiguracion()"></app-configuration>
+
+<app-configuration-popup
+  *ngIf="mostrarPopup"
+  [moneda]="bono.moneda"
+  [tipoTasa]="bono.tipoTasa"
+  [capitalizacion]="bono.capitalizacion ?? ''"
+  (close)="cerrarPopup()"
+  (save)="guardarConfiguracion($event)">
+</app-configuration-popup>
 
 <div *ngIf="flujoBono.length > 0">
   <h3 class="titulo-amortizacion">CUADRO DE AMORTIZACIÓN</h3>
