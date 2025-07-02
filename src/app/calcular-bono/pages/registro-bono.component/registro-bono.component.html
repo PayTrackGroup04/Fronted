@@ -32,7 +32,15 @@
           </label>
 
           <label>Frecuencia de Pago:
-            <input type="text" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
+            <select type="text" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
+              <option value="Anual">Anual</option>
+              <option value="Semestral">Semestral</option>
+              <option value="Cuatrimestral">Cuatrimestral</option>
+              <option value="Trimestral">Trimestral</option>
+              <option value="Bimestral">Bimestral</option>
+              <option value="Mensual">Mensual</option>
+              <option value="Quincenal">Quincenal</option>
+            </select>
           </label>
 
           <label>Plazo (en años):
