@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {Bono} from '../../model/bono.entity';
 import {FlujoBono} from '../../model/flujo-bono.entity';
+import {ConfigurationComponent} from '../../components/configuration.component/configuration.component';
 
 @Component({
   selector: 'app-registro-bono',
   templateUrl: './registro-bono.component.html',
   styleUrls: ['./registro-bono.component.css'],
-standalone: true,
-imports: [CommonModule, FormsModule]
+  standalone: true,
+  imports: [CommonModule, FormsModule, ConfigurationComponent]
 
 })
 export class RegistroBonoComponent {
@@ -39,12 +40,10 @@ export class RegistroBonoComponent {
   convexidad = 0;
   precioBono = 0;
 
-
   calcularFlujo(): void {
     const n = this.bono.plazoAnios * this.periodosPorAno(this.bono.frecuenciaPago);
     const tasaEfectiva = this.obtenerTasaEfectiva(this.bono);
-    const cuota = this.calcularCuota(this.bono.valorNominal, tasaEfectiva, n);
-
+    let cuotaCalculada = 0;
 
     const flujo: FlujoBono[] = [];
     let saldo = this.bono.valorNominal;
@@ -54,8 +53,14 @@ export class RegistroBonoComponent {
     let conv = 0;
     let flujoArrayEmisor = [];
     let flujoArrayInversionista = [];
+
     flujoArrayInversionista.push(-this.bono.valorNominal);
-    flujoArrayEmisor.push(this.bono.valorNominal - (this.bono.valorNominal * this.bono.cavali) - (this.bono.valorNominal * this.bono.estructuracion) - (this.bono.valorNominal * this.bono.colocacion));
+    flujoArrayEmisor.push(
+      this.bono.valorNominal -
+      (this.bono.valorNominal * this.bono.cavali) -
+      (this.bono.valorNominal * this.bono.estructuracion) -
+      (this.bono.valorNominal * this.bono.colocacion)
+    );
 
     flujo.push({
       t: 0,
@@ -72,24 +77,41 @@ export class RegistroBonoComponent {
 
     for (let t = 1; t <= n; t++) {
       fecha.setMonth(fecha.getMonth() + (12 / this.frecuenciaNumerica(this.bono.frecuenciaPago)));
-      const tipoGracia = t <= this.bono.graciaTotal ? 'Total' : t <= this.bono.graciaTotal + this.bono.graciaParcial ? 'Parcial' : 'Ninguno';
+      const tipoGracia =
+        t <= this.bono.graciaTotal ? 'Total' :
+          t <= this.bono.graciaTotal + this.bono.graciaParcial ? 'Parcial' : 'Ninguno';
 
-      let interes = saldo * tasaEfectiva;
+      const interes = saldo * tasaEfectiva;
       let cuotaFinal = 0;
       let amortizacion = 0;
+      let saldoFinal = saldo;
 
       if (tipoGracia === 'Total') {
-        interes = 0;
+        // Interés se capitaliza al saldo
         amortizacion = 0;
+        cuotaFinal = 0;
+        saldoFinal = saldo + interes;
       } else if (tipoGracia === 'Parcial') {
         cuotaFinal = interes;
         amortizacion = 0;
       } else {
-        cuotaFinal = cuota;
-        amortizacion = cuota - interes;
+        // Calcula cuota constante al entrar por primera vez a "Ninguno"
+        if (cuotaCalculada === 0) {
+          const cuotasRestantes = n - t + 1;
+          cuotaCalculada = this.calcularCuota(saldo, tasaEfectiva, cuotasRestantes);
+        }
+
+        if (t === n) {
+          amortizacion = saldo;
+          cuotaFinal = interes + amortizacion;
+        } else {
+          cuotaFinal = cuotaCalculada;
+          amortizacion = cuotaFinal - interes;
+        }
+
+        saldoFinal = saldo - amortizacion;
       }
 
-      const saldoFinal = saldo - amortizacion;
       const flujoNeto = cuotaFinal;
       flujoArrayEmisor.push(-cuotaFinal);
       flujoArrayInversionista.push(cuotaFinal);
@@ -117,7 +139,6 @@ export class RegistroBonoComponent {
     }
 
     this.flujoBono = flujo;
-    console.log(flujoArrayEmisor);
     const tirE = this.calcularTIR(flujoArrayEmisor);
     const tirI = this.calcularTIR(flujoArrayInversionista);
     this.tcea = Math.pow(1 + tirE, this.periodosPorAno(this.bono.frecuenciaPago)) - 1;
@@ -126,74 +147,49 @@ export class RegistroBonoComponent {
     this.duracionModificada = this.duracion / (1 + tasaEfectiva);
     this.convexidad = conv / (Math.pow(1 + tasaEfectiva, 2) * valorActualTotal);
     this.precioBono = valorActualTotal;
-
-    //this.calcularTREA();
   }
 
+
   private calcularCuota(pv: number, tasaEfectiva: number, n: number): number {
-    let cuota;
-    cuota = pv * ((tasaEfectiva * Math.pow(1 + tasaEfectiva, n))/ (Math.pow(1 + tasaEfectiva, n) - 1));
-    return cuota;
+    return pv * ((tasaEfectiva * Math.pow(1 + tasaEfectiva, n)) / (Math.pow(1 + tasaEfectiva, n) - 1));
   }
 
   private obtenerTasaEfectiva(bono: Bono): number {
-    const r = bono.tasaCupon / 100;
+    const r = bono.tasaCupon;
     const m = this.periodosPorAno(bono.capitalizacion ?? 'Mensual');
-    const f = this.frecuenciaNumerica(bono.frecuenciaPago);
+    const f = this.periodosPorAno(bono.frecuenciaPago);
     const d = bono.numeroDiasPorAno;
 
     if (bono.tipoTasa === 'Nominal') {
       return Math.pow(1 + (r / m), m / f) - 1;
-    } else { // Efectiva
-      return Math.pow(1 + r, ((f * 30) / d)) - 1;
+    } else {
+      return Math.pow(1 + r, ((360 / f) / d)) - 1;
     }
   }
 
-  private periodosPorAno(cap: string | number): number {
-    switch (cap) {
-      case 'Quincenal':
-      case 15:
-        return 24;
-      case 'Mensual':
-      case 1:
-        return 12;
-      case 'Bimestral':
-      case 2:
-        return 6;
-      case 'Trimestral':
-      case 3:
-        return 4;
-      case 'Cuatrimestral':
-      case 4:
-        return 3;
-      case 'Semestral':
-      case 6:
-        return 2;
-      case 'Anual':
-      case 12:
-        return 1;
+  private periodosPorAno(frecuencia: string): number {
+    switch (frecuencia.toLowerCase()) {
+      case 'quincenal': return 24;
+      case 'mensual': return 12;
+      case 'bimestral': return 6;
+      case 'trimestral': return 4;
+      case 'cuatrimestral': return 3;
+      case 'semestral': return 2;
+      case 'anual': return 1;
       default: return 1;
     }
   }
 
   private frecuenciaNumerica(frec: string): number {
-    switch (frec) {
-      case 'Quincenal':
-        return 15;
-      case 'Mensual':
-        return 1;
-      case 'Bimestral':
-        return 2;
-      case 'Trimestral':
-        return 3;
-      case 'Cuatrimestral':
-        return 4;
-      case 'Semestral':
-        return 6;
-      case 'Anual':
-        return 12;
-      default:
-        return 1;
+    switch (frec.toLowerCase()) {
+      case 'quincenal': return 15;
+      case 'mensual': return 1;
+      case 'bimestral': return 2;
+      case 'trimestral': return 3;
+      case 'cuatrimestral': return 4;
+      case 'semestral': return 6;
+      case 'anual': return 12;
+      default: return 1;
     }
   }
 
@@ -224,25 +220,6 @@ export class RegistroBonoComponent {
     throw new Error("La TIR no converge");
   }
 
-  calcularTREA(): void {
-    let tasa = 0.01;
-    const precision = 0.0000001;
-    const maxIter = 100;
-    let diferencia;
-    let iter = 0;
-
-    do {
-      const vp = this.flujoBono.reduce((acc, cuota) => acc + cuota.flujoNeto / Math.pow(1 + tasa, cuota.t), 0);
-      diferencia = this.precioBono - vp;
-      const derivada = this.flujoBono.reduce((acc, cuota) => acc - cuota.t * cuota.flujoNeto / Math.pow(1 + tasa, cuota.t + 1), 0);
-      const nuevaTasa = tasa - diferencia / derivada;
-      if (Math.abs(nuevaTasa - tasa) < precision) break;
-      tasa = nuevaTasa;
-    } while (++iter < maxIter);
-
-    this.trea = Math.pow(1 + tasa, this.frecuenciaNumerica(this.bono.frecuenciaPago)) - 1;
-  }
-
   capitalizacionDeshabilitada(): boolean {
     return this.bono.tipoTasa === 'Efectiva';
   }
@@ -252,5 +229,4 @@ export class RegistroBonoComponent {
   validarValorNominal() {
     this.mensajeAdvertenciaValorNominal = this.bono.valorNominal <= 1000;
   }
-
 }

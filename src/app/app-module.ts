@@ -4,17 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing-module';
 
 import { RegistroBonoComponent } from './calcular-bono/pages/registro-bono.component/registro-bono.component';
-import { ConfigurationComponent } from './calcular-bono/components/configuration.component/configuration.component';
+import {MatIcon} from '@angular/material/icon';
 
 @NgModule({
-  declarations: [
-   ConfigurationComponent
-  ],
   imports: [
     BrowserModule,
     FormsModule,
     AppRoutingModule,
     RegistroBonoComponent,
+    MatIcon,
   ],
   providers: [],
   bootstrap: []
