@@ -231,8 +231,16 @@ export class RegistroBonoComponent {
 
   valorNominalValido = true;
   valorTasaCuponValido = true;
+  valorPlazoAniosValido = true;
+  valorPlazoGraciaTotalValido = true;
+  valorPlazoGraciaParcialValido = true;
+  valorGraciaValida = true;
   mensajeAdvertenciaValorNominal = false;
   mensajeAdvertenciaTasa = false;
+  mensajeAdvertenciaPlazoAnios = false;
+  mensajeAdvertenciaPlazoGraciaTotal = false;
+  mensajeAdvertenciaPlazoGraciaParcial = false;
+  mensajeAdvertenciaSumaGracia = false;
 
   validarValorNominal() {
     const valor = this.bono.valorNominal;
@@ -249,5 +257,31 @@ export class RegistroBonoComponent {
     this.mensajeAdvertenciaTasa = tasa < 1 || tasa > 20;
     this.valorTasaCuponValido= !this.mensajeAdvertenciaTasa;
   }
+
+  validarPlazoAnios() {
+    const plazo = this.bono.plazoAnios;
+    this.mensajeAdvertenciaPlazoAnios = plazo < 1 || plazo > 30;
+    this.valorPlazoAniosValido = !this.mensajeAdvertenciaPlazoAnios;
+  }
+
+  validarPlazosDeGracia() {
+    const totalGracia = this.bono.graciaTotal;
+    const parcialGracia = this.bono.graciaParcial;
+    const periodos = this.bono.plazoAnios * this.periodosPorAno(this.bono.frecuenciaPago);
+
+    const sumaGracia = totalGracia + parcialGracia;
+
+    this.mensajeAdvertenciaPlazoGraciaTotal = totalGracia > periodos * 0.25;
+    this.mensajeAdvertenciaPlazoGraciaParcial = parcialGracia > periodos * 0.4;
+
+    this.mensajeAdvertenciaSumaGracia = sumaGracia >= periodos;
+
+    this.valorGraciaValida = !(
+      this.mensajeAdvertenciaPlazoGraciaTotal ||
+      this.mensajeAdvertenciaPlazoGraciaParcial ||
+      this.mensajeAdvertenciaSumaGracia
+    );
+  }
+
 }
 

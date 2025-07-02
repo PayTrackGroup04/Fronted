@@ -48,17 +48,52 @@
           </label>
 
           <label>Plazo (en años):
-            <input type="number" name="plazoAnios" [(ngModel)]="bono.plazoAnios" required>
+            <input type="number"
+                   name="plazoAnios"
+                   [(ngModel)]="bono.plazoAnios"
+                   (ngModelChange)="validarPlazoAnios()"
+                   required>
+            <div *ngIf="mensajeAdvertenciaPlazoAnios" class="error">
+              <br>
+              <span style="color: red;"> El plazo del bono debe estar entre 1 y 30 años. <br></span>
+              <br>
+            </div>
           </label>
 
           <label>Gracia Total:
-            <input type="number" name="graciaTotal" [(ngModel)]="bono.graciaTotal">
+            <input type="number"
+                   name="graciaTotal"
+                   [(ngModel)]="bono.graciaTotal"
+                   (ngModelChange)="validarPlazosDeGracia()">
+            <div *ngIf="mensajeAdvertenciaPlazoGraciaTotal" class="error">
+              <br>
+              <span style="color: red;"> La gracia total no debe exceder el 25% del plazo total. <br></span>
+              <br>
+            </div>
+            <div *ngIf="mensajeAdvertenciaSumaGracia" class="error">
+              <br>
+              <span style="color: red;"> La suma de los plazos de gracia total y parcial no puede ser mayor o igual que el total de periodos. <br></span>
+              <br>
+            </div>
           </label>
         </div>
 
         <div class="columna">
           <label>Gracia Parcial:
-            <input type="number" name="graciaParcial" [(ngModel)]="bono.graciaParcial">
+            <input type="number"
+                   name="graciaParcial"
+                   [(ngModel)]="bono.graciaParcial"
+                   (ngModelChange)="validarPlazosDeGracia()">
+            <div *ngIf="mensajeAdvertenciaPlazoGraciaParcial" class="error">
+              <br>
+              <span style="color: red;"> La gracia parcial no debe exceder el 40% del plazo total. <br></span>
+              <br>
+            </div>
+            <div *ngIf="mensajeAdvertenciaSumaGracia" class="error">
+              <br>
+              <span style="color: red;"> La suma de los plazos de gracia total y parcial no puede ser mayor o igual que el total de periodos. <br></span>
+              <br>
+            </div>
           </label>
 
           <label>Fecha de Emisión:
@@ -92,7 +127,12 @@
         <div class="boton-centro">
           <button type="submit"
                   [disabled]="!valorNominalValido"
-                  [disabled]="!valorTasaCuponValido">
+                  [disabled]="!valorTasaCuponValido"
+                  [disabled]="!valorPlazoAniosValido"
+                  [disabled]="!valorPlazoGraciaTotalValido"
+                  [disabled]="!valorPlazoGraciaParcialValido"
+                  [disabled]="!valorGraciaValida"
+          >
             CALCULAR FLUJO</button>
         </div>
       </form>
