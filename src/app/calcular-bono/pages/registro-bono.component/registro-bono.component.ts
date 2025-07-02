@@ -38,7 +38,6 @@ export class RegistroBonoComponent {
   duracion = 0;
   duracionModificada = 0;
   convexidad = 0;
-  precioBono = 0;
 
   calcularFlujo(): void {
     const n = this.bono.plazoAnios * this.periodosPorAno(this.bono.frecuenciaPago);
@@ -54,13 +53,14 @@ export class RegistroBonoComponent {
     let flujoArrayEmisor = [];
     let flujoArrayInversionista = [];
 
-    flujoArrayInversionista.push(-this.bono.valorNominal);
-    flujoArrayEmisor.push(
-      this.bono.valorNominal -
-      (this.bono.valorNominal * this.bono.cavali) -
-      (this.bono.valorNominal * this.bono.estructuracion) -
-      (this.bono.valorNominal * this.bono.colocacion)
-    );
+    const costosIniciales = this.bono.valorNominal *
+      (this.bono.cavali + this.bono.estructuracion + this.bono.colocacion);
+
+    const valorRecibidoPorInversionista = this.bono.valorNominal - costosIniciales;
+
+    flujoArrayEmisor.push(this.bono.valorNominal);
+
+    flujoArrayInversionista.push(-valorRecibidoPorInversionista);
 
     flujo.push({
       t: 0,
@@ -72,7 +72,7 @@ export class RegistroBonoComponent {
       amortizacion: 0,
       saldoFinal: 0,
       flujoNeto: -this.bono.valorNominal,
-      flujoActualizado: -this.bono.valorNominal
+      flujoActualizado: -valorRecibidoPorInversionista
     });
 
     for (let t = 1; t <= n; t++) {
@@ -146,7 +146,10 @@ export class RegistroBonoComponent {
     this.duracion = dur / valorActualTotal;
     this.duracionModificada = this.duracion / (1 + tasaEfectiva);
     this.convexidad = conv / (Math.pow(1 + tasaEfectiva, 2) * valorActualTotal);
-    this.precioBono = valorActualTotal;
+
+    //duracion es menos de 4
+    //convexidad es mas de 4
+    //tasa cupon no mayor a 10%
   }
 
 
@@ -155,7 +158,7 @@ export class RegistroBonoComponent {
   }
 
   private obtenerTasaEfectiva(bono: Bono): number {
-    const r = bono.tasaCupon;
+    const r = bono.tasaCupon/100;
     const m = this.periodosPorAno(bono.capitalizacion ?? 'Mensual');
     const f = this.periodosPorAno(bono.frecuenciaPago);
     const d = bono.numeroDiasPorAno;
@@ -220,13 +223,31 @@ export class RegistroBonoComponent {
     throw new Error("La TIR no converge");
   }
 
+  //validaciones
+
   capitalizacionDeshabilitada(): boolean {
     return this.bono.tipoTasa === 'Efectiva';
   }
 
+  valorNominalValido = true;
+  valorTasaCuponValido = true;
   mensajeAdvertenciaValorNominal = false;
+  mensajeAdvertenciaTasa = false;
 
   validarValorNominal() {
-    this.mensajeAdvertenciaValorNominal = this.bono.valorNominal <= 1000;
+    const valor = this.bono.valorNominal;
+
+    const fueraDeRango = valor < 1000 || valor > 10000000;
+    const advertenciaMultiplo = valor % 1000 !== 0;
+
+    this.mensajeAdvertenciaValorNominal = fueraDeRango || advertenciaMultiplo;
+    this.valorNominalValido = !this.mensajeAdvertenciaValorNominal;
+  }
+
+  validarTasaCupon() {
+    const tasa = this.bono.tasaCupon;
+    this.mensajeAdvertenciaTasa = tasa < 1 || tasa > 20;
+    this.valorTasaCuponValido= !this.mensajeAdvertenciaTasa;
   }
 }
+
