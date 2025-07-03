@@ -1,0 +1,55 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #DBFFFF;
+}
+
+.nosotros-container {
+  min-height: 100vh;
+  padding: 40px;
+  background-image: url('/assets/imagen3.png'); /* Marca de agua */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.contenido-central {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.contenido-central h1 {
+  font-size: 48px;
+  color: #000;
+}
+
+.contenido-central p {
+  font-size: 20px;
+  color: #333;
+  margin-top: 10px;
+}
+
+.mision-vision {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+.mision, .vision {
+  width: 45%;
+  background-color: rgba(255, 255, 255, 0); /* Para que el texto se lea bien sobre la imagen */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.mision h2, .vision h2 {
+  font-size: 28px;
+  color: #000;
+}
+
+.mision p, .vision p {
+  font-size: 18px;
+  color: #333;
+}
+

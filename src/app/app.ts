@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { RegistroBonoComponent } from './calcular-bono/pages/registro-bono.component/registro-bono.component';
+import { RouterModule } from '@angular/router';
+import {NavbarComponent} from './navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
+  templateUrl: './app.html',
   standalone: true,
-  template: `<app-registro-bono></app-registro-bono>`,
-  imports: [RegistroBonoComponent],
-  styleUrls: ['./app.css']
+  imports: [RouterModule, NavbarComponent],
+  styleUrl: './app.css'
 })
-export class App{
+export class App {
   protected title = 'PayTrack-Fronted';
 }
