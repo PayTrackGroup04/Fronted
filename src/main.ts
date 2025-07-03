@@ -1,11 +1,10 @@
-import { platformBrowser } from '@angular/platform-browser';
-import { AppModule } from './app/app-module';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { App } from './app/app';
-platformBrowser().bootstrapModule(AppModule, {
-  ngZoneEventCoalescing: true,
-})
-  .catch(err => console.error(err));
+import { AppComponent } from './app/app.component';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes';
+import { importProvidersFrom } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {appConfig} from './app/app.config';
 
-bootstrapApplication(App)
-  .catch(err => console.error(err));
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));
