@@ -161,9 +161,17 @@ export class RegistroBonoComponent {
     const tirI = this.calcularTIR(flujoArrayInversionista);
     this.tcea = Math.pow(1 + tirE, this.periodosPorAno(this.bono.frecuenciaPago)) - 1;
     this.trea = Math.pow(1 + tirI, this.periodosPorAno(this.bono.frecuenciaPago)) - 1;
-    this.duracion = dur / valorActualTotal;
+    const precioActual = valorActualTotal;
+    const f = this.periodosPorAno(this.bono.frecuenciaPago); // frecuencia de pagos al año
+
+// Duración en años
+    this.duracion = (dur / precioActual) / f;
+
+// Duración modificada en años
     this.duracionModificada = this.duracion / (1 + tasaEfectiva);
-    this.convexidad = conv / (Math.pow(1 + tasaEfectiva, 2) * valorActualTotal);
+
+// Convexidad anualizada
+    this.convexidad = conv / (Math.pow(1 + tasaEfectiva, 2) * precioActual * f * f);
 
     //duracion es menos de 4
     //convexidad es mas de 4
