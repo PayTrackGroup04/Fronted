@@ -11,6 +11,12 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'nosotros', component: NosotrosComponent },
   { path: 'precio', component: PrecioComponent },
-  { path: 'registro', component: RegistroBonoComponent }
+  {
+    path: 'registro',
+    loadComponent: () =>
+      import('./calcular-bono/pages/registro-bono.component/registro-bono.component').then(
+        (m) => m.RegistroBonoComponent
+      )
+  }
   // { path: '**', redirectTo: '' }
 ];

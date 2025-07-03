@@ -146,3 +146,19 @@ th {
         grid-template-columns: 1fr;
     }
 }
+
+.contenedor-boton-guardar {
+  position: relative;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.boton-guardar{
+  position: absolute;
+  bottom: 170px;
+  right: 175px;
+  z-index: 1000;
+  color: #ffffff;
+}

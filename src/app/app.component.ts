@@ -3,14 +3,17 @@ import {NavbarComponent} from './navbar/navbar.component';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {filter} from 'rxjs';
 import {NgIf} from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
+  standalone: true,
   imports: [
     NavbarComponent,
     RouterOutlet,
-    NgIf
+    NgIf,
+    HttpClientModule,
   ],
   styleUrls: ['./app.css']
 })

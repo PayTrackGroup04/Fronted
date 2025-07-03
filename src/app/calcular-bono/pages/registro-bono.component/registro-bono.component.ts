@@ -5,13 +5,15 @@ import {Bono} from '../../model/bono.entity';
 import {FlujoBono} from '../../model/flujo-bono.entity';
 import {ConfigurationComponent} from '../../components/configuration.component/configuration.component';
 import {ConfigurationPopupComponent} from '../../components/configuration-popup.component/configuration-popup.component';
+import {BonoService} from '../../services/bono.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-registro-bono',
   templateUrl: './registro-bono.component.html',
   styleUrls: ['./registro-bono.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfigurationComponent, ConfigurationPopupComponent]
+  imports: [CommonModule, FormsModule, ConfigurationComponent, ConfigurationPopupComponent, HttpClientModule]
 
 })
 export class RegistroBonoComponent {
@@ -41,6 +43,15 @@ export class RegistroBonoComponent {
   convexidad = 0;
 
   mostrarPopup = false;
+
+  constructor(private bonoService: BonoService) {}
+
+  guardarBono() {
+    this.bonoService.guardarBono(this.bono).subscribe({
+      next: () => alert('¡Bono guardado exitosamente!'),
+      error: () => alert('Error al guardar el bono')
+    });
+  }
 
   abrirConfiguracion() {
     this.mostrarPopup = true;
