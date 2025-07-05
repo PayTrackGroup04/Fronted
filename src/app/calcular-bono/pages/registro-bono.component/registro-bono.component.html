@@ -33,13 +33,13 @@
 
           <label>Frecuencia de Pago:
             <select type="text" name="frecuenciaPago" [(ngModel)]="bono.frecuenciaPago" required>
-              <option value="Anual">Anual</option>
-              <option value="Semestral">Semestral</option>
-              <option value="Cuatrimestral">Cuatrimestral</option>
-              <option value="Trimestral">Trimestral</option>
-              <option value="Bimestral">Bimestral</option>
-              <option value="Mensual">Mensual</option>
-              <option value="Quincenal">Quincenal</option>
+              <option value="ANUAL">Anual</option>
+              <option value="SEMESTRAL">Semestral</option>
+              <option value="CUATRIMESTRAL">Cuatrimestral</option>
+              <option value="TRIMESTRAL">Trimestral</option>
+              <option value="BIMESTRAL">Bimestral</option>
+              <option value="MENSUAL">Mensual</option>
+              <option value="QUINCENAL">Quincenal</option>
             </select>
           </label>
 
@@ -140,6 +140,10 @@
 
 <div class="contenedor-boton-guardar">
   <button class="boton-guardar" type="button" (click)="guardarBono()">GUARDAR BONO</button>
+</div>
+
+<div class="contenedor-boton-ver">
+  <button class="boton-ver" type="button" (click)="irAListadoBonos()">VER BONOS</button>
 </div>
 
 <app-configuration (openPopup)="abrirConfiguracion()"></app-configuration>

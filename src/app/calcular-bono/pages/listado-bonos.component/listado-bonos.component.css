@@ -1,0 +1,101 @@
+.bono-card {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.06);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  margin-bottom: 1.5rem;
+}
+
+.bono-card__content {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 16px !important;
+}
+
+.bono-card__title {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.bono-card__text {
+  color: #4b5563;
+}
+
+.bono-card__edit-button {
+  color: #3b82f6;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.bono-card__edit-button:hover {
+  color: #1d4ed8;
+}
+
+.bono-form {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.5rem;
+}
+
+.bono-form__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.bono-form__input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  width: 100%;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: border 0.2s;
+}
+
+.bono-form__input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  background: #fff;
+}
+
+.bono-form__buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.bono-form__buttons button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-right: 0.5rem;
+}
+
+.bono-form__buttons button:last-child {
+  margin-right: 0;
+}
+
+.bono-form__buttons button:hover {
+  background: #2563eb;
+}
+
+@media (max-width: 600px) {
+  .bono-card__content {
+    padding: 1rem !important;
+  }
+  .bono-card__title {
+    font-size: 1.1rem;
+  }
+  .bono-card__edit-button {
+    font-size: 1.2rem;
+  }
+}

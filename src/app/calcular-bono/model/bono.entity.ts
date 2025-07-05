@@ -1,9 +1,10 @@
 export interface Bono {
+  id?: number;
   valorNominal: number;
   tasaCupon: number;
-  tipoTasa: 'Efectiva' | 'Nominal';
-  capitalizacion?: 'Quincenal' | 'Mensual' | 'Bimestral' | 'Trimestral' | 'Cuatrimestral' | 'Semestral' | 'Anual';
-  frecuenciaPago: 'Quincenal' | 'Mensual' | 'Bimestral' | 'Trimestral' | 'Cuatrimestral' | 'Semestral' | 'Anual';
+  tipoTasa: 'EFECTIVA' | 'NOMINAL';
+  capitalizacion?: 'QUINCENAL' | 'MENSUAL' | 'BIMESTRAL' | 'TRIMESTRAL' | 'CUATRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
+  frecuenciaPago: 'QUINCENAL' | 'MENSUAL' | 'BIMESTRAL' | 'TRIMESTRAL' | 'CUATRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
   plazoAnios: number;
   graciaTotal: number;
   graciaParcial: number;
@@ -12,7 +13,7 @@ export interface Bono {
   cavali: number;
   estructuracion: number;
   colocacion: number;
-  metodoAmortizacion: 'Frances';
-  moneda: 'Soles' | 'Dolares';
+  metodoAmortizacion: 'FRANCES';
+  moneda: 'PEN' | 'USD';
 
 }

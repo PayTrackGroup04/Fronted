@@ -3,25 +3,25 @@
     <h2>Configuración</h2>
     <label>Moneda:
       <select [(ngModel)]="moneda">
-        <option value="Soles">Soles</option>
-        <option value="Dolares">Dólares</option>
+        <option value="SOLES">Soles</option>
+        <option value="DOLARES">Dólares</option>
       </select>
     </label>
     <label>Tipo de Tasa:
       <select [(ngModel)]="tipoTasa">
-        <option value="Efectiva">Efectiva</option>
-        <option value="Nominal">Nominal</option>
+        <option value="EFECTIVA">Efectiva</option>
+        <option value="NOMINAL">Nominal</option>
       </select>
     </label>
     <label>Capitalización:
-      <select [(ngModel)]="capitalizacion" [disabled]="tipoTasa === 'Efectiva'">
-        <option value="Quincenal">Quincenal</option>
-        <option value="Mensual">Mensual</option>
-        <option value="Bimestral">Bimestral</option>
-        <option value="Trimestral">Trimestral</option>
-        <option value="Cuatrimestral">Cuatrimestral</option>
-        <option value="Semestral">Semestral</option>
-        <option value="Anual">Anual</option>
+      <select [(ngModel)]="capitalizacion" [disabled]="tipoTasa === 'EFECTIVA'">
+        <option value="QUINCENAL">Quincenal</option>
+        <option value="MENSUAL">Mensual</option>
+        <option value="BIMESTRAL">Bimestral</option>
+        <option value="TRIMESTRAL">Trimestral</option>
+        <option value="CUATRIMESTRAL">Cuatrimestral</option>
+        <option value="SEMESTRAL">Semestral</option>
+        <option value="ANUAL">Anual</option>
       </select>
     </label>
     <div class="popup-actions">

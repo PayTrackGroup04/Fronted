@@ -1,0 +1,14 @@
+<div class="auth-container">
+  <h2>Crear Cuenta</h2>
+
+  <form (ngSubmit)=onSubmit() [formGroup]="myForm">
+    <input type="nombre" placeholder="Nombre completo" required formControlName="nombre"/>
+    <input type="username" placeholder="Correo electrónico" required formControlName="username"/>
+    <input type="password" placeholder="Contraseña" required formControlName="password"/>
+
+    <button class="click" type="submit"> Registrarse </button>
+    <p> ¿Ya tienes cuenta?
+      <a (click)="toggleForm()"> Iniciar Sesión </a>
+    </p>
+  </form>
+</div>

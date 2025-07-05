@@ -7,6 +7,7 @@ import {ConfigurationComponent} from '../../components/configuration.component/c
 import {ConfigurationPopupComponent} from '../../components/configuration-popup.component/configuration-popup.component';
 import {BonoService} from '../../services/bono.service';
 import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registro-bono',
@@ -20,9 +21,9 @@ export class RegistroBonoComponent {
   bono: Bono = {
     valorNominal: 10000,
     tasaCupon: 0.08,
-    tipoTasa: 'Efectiva',
-    capitalizacion: 'Mensual',
-    frecuenciaPago: 'Mensual',
+    tipoTasa: 'EFECTIVA',
+    capitalizacion: 'MENSUAL',
+    frecuenciaPago: 'MENSUAL',
     plazoAnios: 3,
     graciaTotal: 0,
     graciaParcial: 1,
@@ -31,8 +32,8 @@ export class RegistroBonoComponent {
     cavali: 0.005,
     estructuracion: 0.01,
     colocacion: 0.002,
-    metodoAmortizacion: 'Frances',
-    moneda: 'Soles'
+    metodoAmortizacion: 'FRANCES',
+    moneda: 'PEN'
   };
 
   flujoBono: FlujoBono[] = [];
@@ -44,13 +45,10 @@ export class RegistroBonoComponent {
 
   mostrarPopup = false;
 
-  constructor(private bonoService: BonoService) {}
+  constructor(private bonoService: BonoService, private router: Router) {}
 
-  guardarBono() {
-    this.bonoService.guardarBono(this.bono).subscribe({
-      next: () => alert('¡Bono guardado exitosamente!'),
-      error: () => alert('Error al guardar el bono')
-    });
+  irAListadoBonos() {
+    this.router.navigate(['/bonos']);
   }
 
   abrirConfiguracion() {
@@ -196,11 +194,11 @@ export class RegistroBonoComponent {
 
   private obtenerTasaEfectiva(bono: Bono): number {
     const r = bono.tasaCupon/100;
-    const m = this.periodosPorAno(bono.capitalizacion ?? 'Mensual');
+    const m = this.periodosPorAno(bono.capitalizacion ?? 'MENSUAL');
     const f = this.periodosPorAno(bono.frecuenciaPago);
     const d = bono.numeroDiasPorAno;
 
-    if (bono.tipoTasa === 'Nominal') {
+    if (bono.tipoTasa === 'NOMINAL') {
       return Math.pow(1 + (r / m), m / f) - 1;
     } else {
       return Math.pow(1 + r, ((360 / f) / d)) - 1;
@@ -209,26 +207,26 @@ export class RegistroBonoComponent {
 
   private periodosPorAno(frecuencia: string): number {
     switch (frecuencia.toLowerCase()) {
-      case 'quincenal': return 24;
-      case 'mensual': return 12;
-      case 'bimestral': return 6;
-      case 'trimestral': return 4;
-      case 'cuatrimestral': return 3;
-      case 'semestral': return 2;
-      case 'anual': return 1;
+      case 'QUINCENAL': return 24;
+      case 'MENSUAL': return 12;
+      case 'BIMESTRAL': return 6;
+      case 'TRIMESTRAL': return 4;
+      case 'CUATRIMESTRAL': return 3;
+      case 'SEMESTRAL': return 2;
+      case 'ANUAL': return 1;
       default: return 1;
     }
   }
 
   private frecuenciaNumerica(frec: string): number {
     switch (frec.toLowerCase()) {
-      case 'quincenal': return 15;
-      case 'mensual': return 1;
-      case 'bimestral': return 2;
-      case 'trimestral': return 3;
-      case 'cuatrimestral': return 4;
-      case 'semestral': return 6;
-      case 'anual': return 12;
+      case 'QUINCENAL': return 15;
+      case 'MENSUAL': return 1;
+      case 'BIMESTRAL': return 2;
+      case 'TRIMESTRAL': return 3;
+      case 'CUATRIMESTRAL': return 4;
+      case 'SEMESTRAL': return 6;
+      case 'ANUAL': return 12;
       default: return 1;
     }
   }
@@ -314,6 +312,16 @@ export class RegistroBonoComponent {
       this.mensajeAdvertenciaPlazoGraciaParcial ||
       this.mensajeAdvertenciaSumaGracia
     );
+  }
+
+  guardarBono() {
+    this.bonoService.guardarBono(this.bono).subscribe({
+      next: () => alert('¡Bono guardado exitosamente!'),
+      error: (err) => {
+        console.error('Error al guardar el bono', err);
+        alert('Hubo un error al guardar el bono');
+      }
+    });
   }
 
 }

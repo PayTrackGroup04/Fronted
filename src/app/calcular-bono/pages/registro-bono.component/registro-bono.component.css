@@ -162,3 +162,19 @@ th {
   z-index: 1000;
   color: #ffffff;
 }
+
+.contenedor-boton-ver {
+  position: relative;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.boton-ver{
+  position: absolute;
+  bottom: 90px;
+  right: 175px;
+  z-index: 1000;
+  color: #ffffff;
+}
