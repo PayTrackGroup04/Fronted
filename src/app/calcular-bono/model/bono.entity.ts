@@ -6,6 +6,7 @@ export interface Bono {
   capitalizacion?: 'QUINCENAL' | 'MENSUAL' | 'BIMESTRAL' | 'TRIMESTRAL' | 'CUATRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
   frecuenciaPago: 'QUINCENAL' | 'MENSUAL' | 'BIMESTRAL' | 'TRIMESTRAL' | 'CUATRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
   plazoAnios: number;
+  tasaMercado: number;
   graciaTotal: number;
   graciaParcial: number;
   fechaEmision: Date;

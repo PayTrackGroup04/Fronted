@@ -20,11 +20,12 @@ import { Router } from '@angular/router';
 export class RegistroBonoComponent {
   bono: Bono = {
     valorNominal: 10000,
-    tasaCupon: 0.08,
+    tasaCupon: 8,
     tipoTasa: 'EFECTIVA',
     capitalizacion: 'MENSUAL',
     frecuenciaPago: 'MENSUAL',
     plazoAnios: 3,
+    tasaMercado: 3,
     graciaTotal: 0,
     graciaParcial: 1,
     fechaEmision: new Date(),
@@ -68,7 +69,9 @@ export class RegistroBonoComponent {
 
   calcularFlujo(): void {
     const n = this.bono.plazoAnios * this.periodosPorAno(this.bono.frecuenciaPago);
-    const tasaEfectiva = this.obtenerTasaEfectiva(this.bono);
+    console.log(n);
+    const tasaEfectiva = this.obtenerTasaEfectiva(this.bono, this.bono.tasaCupon);
+    const tasaMercadoEfectiva = this.obtenerTasaEfectiva(this.bono, this.bono.tasaMercado);
     let cuotaCalculada = 0;
 
     const flujo: FlujoBono[] = [];
@@ -79,28 +82,10 @@ export class RegistroBonoComponent {
     let conv = 0;
     let flujoArrayEmisor = [];
     let flujoArrayInversionista = [];
-
-    const costosIniciales = this.bono.valorNominal *
-      (this.bono.cavali + this.bono.estructuracion + this.bono.colocacion);
-
-    const valorRecibidoPorInversionista = this.bono.valorNominal - costosIniciales;
-
-    flujoArrayEmisor.push(this.bono.valorNominal);
-
-    flujoArrayInversionista.push(-valorRecibidoPorInversionista);
-
-    flujo.push({
-      t: 0,
-      fechaPago: fecha.toISOString().split('T')[0],
-      tipoGracia: '',
-      saldoInicial: 0,
-      interes: 0,
-      cuota: 0,
-      amortizacion: 0,
-      saldoFinal: 0,
-      flujoNeto: -this.bono.valorNominal,
-      flujoActualizado: -valorRecibidoPorInversionista
-    });
+    let precioTotal = 0;
+    let sumaPVt = 0;
+    let numerador = 0;
+    let denominador = 0;
 
     for (let t = 1; t <= n; t++) {
       fecha.setMonth(fecha.getMonth() + (12 / this.frecuenciaNumerica(this.bono.frecuenciaPago)));
@@ -140,14 +125,19 @@ export class RegistroBonoComponent {
       }
 
       const flujoNeto = cuotaFinal;
-      flujoArrayEmisor.push(-cuotaFinal);
+      flujoArrayEmisor.push(cuotaFinal);
       flujoArrayInversionista.push(cuotaFinal);
-      const factorDescuento = 1 / Math.pow(1 + tasaEfectiva, t);
-      const flujoActualizado = flujoNeto * factorDescuento;
+      const factorDescuento = Math.pow(1 + tasaMercadoEfectiva, t);
+      const flujoActualizado = flujoNeto / factorDescuento;
+      sumaPVt += flujoActualizado * t;
+
+      numerador = flujoNeto * t*(t + 1);
+      denominador = Math.pow(1 + tasaMercadoEfectiva, t+2);
+      conv += numerador/ denominador;
+
+      precioTotal += flujoActualizado;
 
       valorActualTotal += flujoActualizado;
-      dur += t * flujoActualizado;
-      conv += t * (t + 1) * flujoActualizado;
 
       flujo.push({
         t,
@@ -165,22 +155,43 @@ export class RegistroBonoComponent {
       saldo = saldoFinal;
     }
 
+
     this.flujoBono = flujo;
+    console.log(this.flujoBono);
+    console.log('Flujo Neto:', flujoArrayEmisor);
+    console.log('Precio Total:', precioTotal);
+    const costosEmisor = this.bono.valorNominal * ((this.bono.cavali + this.bono.estructuracion + this.bono.colocacion)/100);
+    console.log('CostosEmisor:', costosEmisor);
+
+    const montoNeto = precioTotal - costosEmisor;
+
+    const costosAdiciones = this.bono.valorNominal * ((this.bono.cavali)/100);
+    const inversionTotal = precioTotal - costosAdiciones;
+    console.log('Monto Neto:', montoNeto);
+    flujoArrayEmisor.unshift(-montoNeto);
+
+    flujoArrayInversionista.unshift(-inversionTotal);
     const tirE = this.calcularTIR(flujoArrayEmisor);
+
     const tirI = this.calcularTIR(flujoArrayInversionista);
+    console.log('tirE', tirE);
+    console.log('tirI', tirI);
     this.tcea = Math.pow(1 + tirE, this.periodosPorAno(this.bono.frecuenciaPago)) - 1;
     this.trea = Math.pow(1 + tirI, this.periodosPorAno(this.bono.frecuenciaPago)) - 1;
+
+
     const precioActual = valorActualTotal;
+
     const f = this.periodosPorAno(this.bono.frecuenciaPago); // frecuencia de pagos al año
 
 // Duración en años
-    this.duracion = (dur / precioActual) / f;
+    this.duracion = (sumaPVt/precioActual)/f;
 
 // Duración modificada en años
-    this.duracionModificada = this.duracion / (1 + tasaEfectiva);
+    this.duracionModificada = this.duracion / (1 + tasaMercadoEfectiva);
 
 // Convexidad anualizada
-    this.convexidad = conv / (Math.pow(1 + tasaEfectiva, 2) * precioActual * f * f);
+    this.convexidad = conv * (1/precioActual);
 
     //duracion es menos de 4
     //convexidad es mas de 4
@@ -192,8 +203,8 @@ export class RegistroBonoComponent {
     return pv * ((tasaEfectiva * Math.pow(1 + tasaEfectiva, n)) / (Math.pow(1 + tasaEfectiva, n) - 1));
   }
 
-  private obtenerTasaEfectiva(bono: Bono): number {
-    const r = bono.tasaCupon/100;
+  private obtenerTasaEfectiva(bono: Bono, tasa: number): number {
+    const r = tasa/100;
     const m = this.periodosPorAno(bono.capitalizacion ?? 'MENSUAL');
     const f = this.periodosPorAno(bono.frecuenciaPago);
     const d = bono.numeroDiasPorAno;
@@ -206,7 +217,7 @@ export class RegistroBonoComponent {
   }
 
   private periodosPorAno(frecuencia: string): number {
-    switch (frecuencia.toLowerCase()) {
+    switch (frecuencia.toUpperCase()) {
       case 'QUINCENAL': return 24;
       case 'MENSUAL': return 12;
       case 'BIMESTRAL': return 6;
@@ -219,7 +230,7 @@ export class RegistroBonoComponent {
   }
 
   private frecuenciaNumerica(frec: string): number {
-    switch (frec.toLowerCase()) {
+    switch (frec.toUpperCase()) {
       case 'QUINCENAL': return 15;
       case 'MENSUAL': return 1;
       case 'BIMESTRAL': return 2;
@@ -276,22 +287,22 @@ export class RegistroBonoComponent {
   validarValorNominal() {
     const valor = this.bono.valorNominal;
 
-    const fueraDeRango = valor < 1000 || valor > 10000000;
-    //const advertenciaMultiplo = valor % 1000 !== 0;
+    const fueraDeRango = valor < 1000 || valor > 10000000 ;
+    const advertenciaMultiplo = valor % 1000 !== 0;
 
-    this.mensajeAdvertenciaValorNominal = fueraDeRango; // || advertenciaMultiplo;
+    this.mensajeAdvertenciaValorNominal = fueraDeRango || advertenciaMultiplo;
     this.valorNominalValido = !this.mensajeAdvertenciaValorNominal;
   }
 
   validarTasaCupon() {
     const tasa = this.bono.tasaCupon;
-    this.mensajeAdvertenciaTasa = tasa < 1 || tasa > 20;
+    this.mensajeAdvertenciaTasa = tasa < 2 || tasa > 10;
     this.valorTasaCuponValido= !this.mensajeAdvertenciaTasa;
   }
 
   validarPlazoAnios() {
     const plazo = this.bono.plazoAnios;
-    this.mensajeAdvertenciaPlazoAnios = plazo < 1 || plazo > 30;
+    this.mensajeAdvertenciaPlazoAnios = plazo < 3 || plazo > 12;
     this.valorPlazoAniosValido = !this.mensajeAdvertenciaPlazoAnios;
   }
 

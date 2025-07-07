@@ -15,7 +15,7 @@ export const routes: Routes = [
   { path: 'sign-up', component: SignUpComponent },
   { path: 'nosotros', component: NosotrosComponent },
   { path: 'precio', component: PrecioComponent },
-  { path: 'registro', component: RegistroBonoComponent, canActivate: [authenticationGuard] },
+  { path: 'registro', component: RegistroBonoComponent},
   { path: 'bonos', component: ListadoBonosComponent, canActivate: [authenticationGuard] },
   // { path: '**', redirectTo: '' }
 ];
